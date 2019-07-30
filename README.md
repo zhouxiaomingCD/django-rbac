@@ -1,13 +1,13 @@
 # django-rbac
 Django之rbac组件
 
-##RBAC组件的使用文档
+RBAC组件的使用文档
 
-###1. 将rbac组件拷贝项目。
+1. 将rbac组件拷贝项目。
 
-###2. 将rbac/migrations目录中的数据库迁移记录删除
+2. 将rbac/migrations目录中的数据库迁移记录删除
 
-###3. 业务系统中用户表结构的设计
+3. 业务系统中用户表结构的设计
     业务表结构中的用户表需要和rbac中的用户有继承关系，如：
 
 rbac/models.py
@@ -35,12 +35,12 @@ rbac/models.py
         level = models.IntegerField(verbose_name='级别', choices=level_choices)
         depart = models.ForeignKey(verbose_name='部门', to='Department')
 ```
-###4. 将业务系统中的用户表的路径写到配置文件。
+4. 将业务系统中的用户表的路径写到配置文件。
 
     RBAC_USER_MODLE_CLASS = "app01.models.UserInfo"
     用于在rbac分配权限时，读取业务表中的用户信息。
     
-###5. 业务逻辑开发
+5. 业务逻辑开发
     将所有的路由都设置一个name，如：
 
 ```python
@@ -60,7 +60,7 @@ url(r'^host/del/(?P<pk>\d+)/$', host.host_del, name='host_del'),
 
 用于反向生成URL以及粒度控制到按钮级别的权限控制。
 
-###6. 权限信息录入
+6. 权限信息录入
     - 在url中添加rbac的路由分发,注意：必须设置namespace
  
     urlpatterns = [
@@ -82,7 +82,7 @@ url(r'^host/del/(?P<pk>\d+)/$', host.host_del, name='host_del'),
             '/index/',
         ]```
         
-###7. 编写用户登录的逻辑【进行权限初始化】
+7. 编写用户登录的逻辑【进行权限初始化】
 ```python
     from django.shortcuts import render, redirect
     from app01 import models
@@ -103,7 +103,7 @@ url(r'^host/del/(?P<pk>\d+)/$', host.host_del, name='host_del'),
             PERMISSION_SESSION_KEY = "luffy_permission_url_list_key"
             MENU_SESSION_KEY = "luffy_permission_menu_key"
 ```
-###8. 编写一个首页的逻辑
+8. 编写一个首页的逻辑
 ```python
     def index(request):
         return render(request, 'index.html')
@@ -114,7 +114,7 @@ url(r'^host/del/(?P<pk>\d+)/$', host.host_del, name='host_del'),
             '/logout/',
         ]
 ```
-###9. 通过中间件进行权限校验
+9. 通过中间件进行权限校验
 ```python
     # 权限校验
     MIDDLEWARE = [
@@ -133,7 +133,7 @@ url(r'^host/del/(?P<pk>\d+)/$', host.host_del, name='host_del'),
         '/admin/.*'
     ]
 ```
-###10. 粒度到按钮级别的控制
+10. 粒度到按钮级别的控制
 ```html
 {% extends 'layout.html' %}
 {% load rbac %}
@@ -182,7 +182,7 @@ url(r'^host/del/(?P<pk>\d+)/$', host.host_del, name='host_del'),
     </div>
 {% endblock %}
 ```
-##总结，目的是希望在任意系统中应用权限系统。
+总结，目的是希望在任意系统中应用权限系统。
 
 
 ```python
