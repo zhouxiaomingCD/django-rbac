@@ -1,0 +1,44 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.css' %}">
+</head>
+<body>
+
+<div style="width: 500px;margin: 0 auto;margin-top: 100px;">
+    <form class="form-horizontal" method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="user" class="col-sm-2 control-label">用户名</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="user" name="username">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="pwd" class="col-sm-2 control-label">密码</label>
+            <div class="col-sm-10">
+                <input type="password" class="form-control" id="pwd" name="password">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary">登 录</button>
+                <span style="color: red">{{ error }}</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <p>用户名：武沛齐   密码:123 </p>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+</body>
+</html>
