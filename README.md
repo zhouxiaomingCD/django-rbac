@@ -184,55 +184,58 @@ url(r'^host/del/(?P<pk>\d+)/$', host.host_del, name='host_del'),
 {% endblock %}
 ```
 ##总结，目的是希望在任意系统中应用权限系统。
-    - 用户登录 + 用户首页 + 用户注销 业务逻辑
-    - 项目业务逻辑开发
-        注意：开发时候灵活的去设置layout.html中的两个inclusion_tag
-            <div class="pg-body">
-                <div class="left-menu">
-                    <div class="menu-body">
-                        {% multi_menu request %}  # 开发时，去掉；上下时，取回。
-                    </div>
-                </div>
-                <div class="right-body">
-                    <div>
-                        {% breadcrumb request %} # 开发时，去掉；上下时，取回。
-                    </div>
-                    {% block content %} {% endblock %}
+
+```python
+- 用户登录 + 用户首页 + 用户注销 业务逻辑
+- 项目业务逻辑开发
+    注意：开发时候灵活的去设置layout.html中的两个inclusion_tag
+        <div class="pg-body">
+            <div class="left-menu">
+                <div class="menu-body">
+                    {% multi_menu request %}  # 开发时，去掉；上下时，取回。
                 </div>
             </div>
-    - 权限信息的录入
-    - 配置文件
-        # 注册APP
-        INSTALLED_APPS = [
-            ...
-            'rbac.apps.RbacConfig'
-        ]
-        # 应用中间件
-        MIDDLEWARE = [
-            ...
-            'rbac.middlewares.rbac.RbacMiddleware',
-        ]
-        # 业务中的用户表
-        RBAC_USER_MODLE_CLASS = "app01.models.UserInfo"
-        # 权限在Session中存储的key
-        PERMISSION_SESSION_KEY = "luffy_permission_url_list_key"
-        # 菜单在Session中存储的key
-        MENU_SESSION_KEY = "luffy_permission_menu_key"
-        # 白名单
-        VALID_URL_LIST = [
-            '/login/',
-            '/admin/.*'
-        ]
-        # 需要登录但无需权限的URL
-        NO_PERMISSION_LIST = [
-            '/index/',
-            '/logout/',
-        ]
-        # 自动化发现路由中URL时，排除的URL
-        AUTO_DISCOVER_EXCLUDE = [
-            '/admin/.*',
-            '/login/',
-            '/logout/',
-            '/index/',
-        ]
-    - 粒度到按钮级别的控制
+            <div class="right-body">
+                <div>
+                    {% breadcrumb request %} # 开发时，去掉；上下时，取回。
+                </div>
+                {% block content %} {% endblock %}
+            </div>
+        </div>
+- 权限信息的录入
+- 配置文件
+    # 注册APP
+    INSTALLED_APPS = [
+        ...
+        'rbac.apps.RbacConfig'
+    ]
+    # 应用中间件
+    MIDDLEWARE = [
+        ...
+        'rbac.middlewares.rbac.RbacMiddleware',
+    ]
+    # 业务中的用户表
+    RBAC_USER_MODLE_CLASS = "app01.models.UserInfo"
+    # 权限在Session中存储的key
+    PERMISSION_SESSION_KEY = "luffy_permission_url_list_key"
+    # 菜单在Session中存储的key
+    MENU_SESSION_KEY = "luffy_permission_menu_key"
+    # 白名单
+    VALID_URL_LIST = [
+        '/login/',
+        '/admin/.*'
+    ]
+    # 需要登录但无需权限的URL
+    NO_PERMISSION_LIST = [
+        '/index/',
+        '/logout/',
+    ]
+    # 自动化发现路由中URL时，排除的URL
+    AUTO_DISCOVER_EXCLUDE = [
+        '/admin/.*',
+        '/login/',
+        '/logout/',
+        '/index/',
+    ]
+- 粒度到按钮级别的控制
+```
