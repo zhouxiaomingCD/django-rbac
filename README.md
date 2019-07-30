@@ -1,72 +1,90 @@
 # django-rbac
 Django之rbac组件
 
-RBAC组件的使用文档
-1. 将rbac组件拷贝项目。
-2. 将rbac/migrations目录中的数据库迁移记录删除
-3. 业务系统中用户表结构的设计
+##RBAC组件的使用文档
+
+###1. 将rbac组件拷贝项目。
+
+###2. 将rbac/migrations目录中的数据库迁移记录删除
+
+###3. 业务系统中用户表结构的设计
     业务表结构中的用户表需要和rbac中的用户有继承关系，如：
-    rbac/models.py
-        class UserInfo(models.Model):
-            # 用户表
-            name = models.CharField(verbose_name='用户名', max_length=32)
-            password = models.CharField(verbose_name='密码', max_length=64)
-            email = models.CharField(verbose_name='邮箱', max_length=32)
-            roles = models.ManyToManyField(verbose_name='拥有的所有角色', to=Role, blank=True) 严重提醒 Role 不要加引号
-            def __str__(self):
-                return self.name
-            class Meta:
-                # django以后再做数据库迁移时，不再为UserInfo类创建相关的表以及表结构了。
-                # 此类可以当做"父类"，被其他Model类继承。
-                abstract = True
-    业务/models.py
-        class UserInfo(RbacUserInfo):
-            phone = models.CharField(verbose_name='联系方式', max_length=32)
-            level_choices = (
-                (1, 'T1'),
-                (2, 'T2'),
-                (3, 'T3'),
-            )
-            level = models.IntegerField(verbose_name='级别', choices=level_choices)
-            depart = models.ForeignKey(verbose_name='部门', to='Department')
-4. 讲业务系统中的用户表的路径写到配置文件。
-    # 业务中的用户表
+
+rbac/models.py
+```python
+    class UserInfo(models.Model):
+        # 用户表
+        name = models.CharField(verbose_name='用户名', max_length=32)
+        password = models.CharField(verbose_name='密码', max_length=64)
+        email = models.CharField(verbose_name='邮箱', max_length=32)
+        roles = models.ManyToManyField(verbose_name='拥有的所有角色', to=Role, blank=True) 严重提醒 Role 不要加引号
+        def __str__(self):
+            return self.name
+        class Meta:
+            # django以后再做数据库迁移时，不再为UserInfo类创建相关的表以及表结构了。
+            # 此类可以当做"父类"，被其他Model类继承。
+            abstract = True
+业务/models.py
+    class UserInfo(RbacUserInfo):
+        phone = models.CharField(verbose_name='联系方式', max_length=32)
+        level_choices = (
+            (1, 'T1'),
+            (2, 'T2'),
+            (3, 'T3'),
+        )
+        level = models.IntegerField(verbose_name='级别', choices=level_choices)
+        depart = models.ForeignKey(verbose_name='部门', to='Department')
+```
+###4. 将业务系统中的用户表的路径写到配置文件。
+
     RBAC_USER_MODLE_CLASS = "app01.models.UserInfo"
     用于在rbac分配权限时，读取业务表中的用户信息。
-5. 业务逻辑开发
+    
+###5. 业务逻辑开发
     将所有的路由都设置一个name，如：
-            url(r'^login/$', account.login, name='login'),
-            url(r'^logout/$', account.logout, name='logout'),
-            url(r'^index/$', account.index, name='index'),
-            url(r'^user/list/$', user.user_list, name='user_list'),
-            url(r'^user/add/$', user.user_add, name='user_add'),
-            url(r'^user/edit/(?P<pk>\d+)/$', user.user_edit, name='user_edit'),
-            url(r'^user/del/(?P<pk>\d+)/$', user.user_del, name='user_del'),
-            url(r'^user/reset/password/(?P<pk>\d+)/$', user.user_reset_pwd, name='user_reset_pwd'),
-            url(r'^host/list/$', host.host_list, name='host_list'),
-            url(r'^host/add/$', host.host_add, name='host_add'),
-            url(r'^host/edit/(?P<pk>\d+)/$', host.host_edit, name='host_edit'),
-            url(r'^host/del/(?P<pk>\d+)/$', host.host_del, name='host_del'),
-    用于反向生成URL以及粒度控制到按钮级别的权限控制。
-6. 权限信息录入
+
+```python
+url(r'^login/$', account.login, name='login'),
+url(r'^logout/$', account.logout, name='logout'),
+url(r'^index/$', account.index, name='index'),
+url(r'^user/list/$', user.user_list, name='user_list'),
+url(r'^user/add/$', user.user_add, name='user_add'),
+url(r'^user/edit/(?P<pk>\d+)/$', user.user_edit, name='user_edit'),
+url(r'^user/del/(?P<pk>\d+)/$', user.user_del, name='user_del'),
+url(r'^user/reset/password/(?P<pk>\d+)/$', user.user_reset_pwd, name='user_reset_pwd'),
+url(r'^host/list/$', host.host_list, name='host_list'),
+url(r'^host/add/$', host.host_add, name='host_add'),
+url(r'^host/edit/(?P<pk>\d+)/$', host.host_edit, name='host_edit'),
+url(r'^host/del/(?P<pk>\d+)/$', host.host_del, name='host_del'),
+```
+
+用于反向生成URL以及粒度控制到按钮级别的权限控制。
+
+###6. 权限信息录入
     - 在url中添加rbac的路由分发,注意：必须设置namespace
-        urlpatterns = [
-            ...
-            url(r'^rbac/', include('rbac.urls', namespace='rbac')),
-        ]
+ 
+    urlpatterns = [
+        ...
+        url(r'^rbac/', include('rbac.urls', namespace='rbac')),
+    ]
     - rbac提供的地址进行操作
         - http://127.0.0.1:8000/rbac/menu/list/
         - http://127.0.0.1:8000/rbac/role/list/
         - http://127.0.0.1:8000/rbac/distribute/permissions/
+        
     相关配置：自动发现URL时，排除的URL：
-        # 自动化发现路由中URL时，排除的URL
+        (自动化发现路由中URL时，排除的URL)
+
+        ```python
         AUTO_DISCOVER_EXCLUDE = [
             '/admin/.*',
             '/login/',
             '/logout/',
             '/index/',
-        ]
-7. 编写用户登录的逻辑【进行权限初始化】
+        ]```
+        
+###7. 编写用户登录的逻辑【进行权限初始化】
+```python
     from django.shortcuts import render, redirect
     from app01 import models
     from rbac.service.init_permission import init_permission
@@ -85,7 +103,9 @@ RBAC组件的使用文档
         setting.py
             PERMISSION_SESSION_KEY = "luffy_permission_url_list_key"
             MENU_SESSION_KEY = "luffy_permission_menu_key"
-8. 编写一个首页的逻辑
+```
+###8. 编写一个首页的逻辑
+```python
     def index(request):
         return render(request, 'index.html')
     相关配置：需要登录但无需权限的URL
@@ -94,7 +114,9 @@ RBAC组件的使用文档
             '/index/',
             '/logout/',
         ]
-9. 通过中间件进行权限校验
+```
+###9. 通过中间件进行权限校验
+```python
     # 权限校验
     MIDDLEWARE = [
         'django.middleware.security.SecurityMiddleware',
@@ -111,7 +133,9 @@ RBAC组件的使用文档
         '/login/',
         '/admin/.*'
     ]
-10. 粒度到按钮级别的控制
+```
+###10. 粒度到按钮级别的控制
+```html
         {% extends 'layout.html' %}
         {% load rbac %}
         {% block content %}
@@ -158,7 +182,8 @@ RBAC组件的使用文档
                 </table>
             </div>
         {% endblock %}
-总结，目的是希望在任意系统中应用权限系统。
+```
+##总结，目的是希望在任意系统中应用权限系统。
     - 用户登录 + 用户首页 + 用户注销 业务逻辑
     - 项目业务逻辑开发
         注意：开发时候灵活的去设置layout.html中的两个inclusion_tag
