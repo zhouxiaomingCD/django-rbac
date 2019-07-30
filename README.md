@@ -182,8 +182,7 @@ url(r'^host/del/(?P<pk>\d+)/$', host.host_del, name='host_del'),
     </div>
 {% endblock %}
 ```
-总结，目的是希望在任意系统中应用权限系统。
-
+## 总结，目的是希望在任意系统中应用权限系统。
 
 ```python
 - 用户登录 + 用户首页 + 用户注销 业务逻辑
