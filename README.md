@@ -12,28 +12,28 @@ Django之rbac组件
 
 rbac/models.py
 ```python
-    class UserInfo(models.Model):
-        # 用户表
-        name = models.CharField(verbose_name='用户名', max_length=32)
-        password = models.CharField(verbose_name='密码', max_length=64)
-        email = models.CharField(verbose_name='邮箱', max_length=32)
-        roles = models.ManyToManyField(verbose_name='拥有的所有角色', to=Role, blank=True) 严重提醒 Role 不要加引号
-        def __str__(self):
-            return self.name
-        class Meta:
-            # django以后再做数据库迁移时，不再为UserInfo类创建相关的表以及表结构了。
-            # 此类可以当做"父类"，被其他Model类继承。
-            abstract = True
+class UserInfo(models.Model):
+    # 用户表
+    name = models.CharField(verbose_name='用户名', max_length=32)
+    password = models.CharField(verbose_name='密码', max_length=64)
+    email = models.CharField(verbose_name='邮箱', max_length=32)
+    roles = models.ManyToManyField(verbose_name='拥有的所有角色', to=Role, blank=True) 严重提醒 Role 不要加引号
+    def __str__(self):
+        return self.name
+    class Meta:
+        # django以后再做数据库迁移时，不再为UserInfo类创建相关的表以及表结构了。
+        # 此类可以当做"父类"，被其他Model类继承。
+        abstract = True
 业务/models.py
-    class UserInfo(RbacUserInfo):
-        phone = models.CharField(verbose_name='联系方式', max_length=32)
-        level_choices = (
-            (1, 'T1'),
-            (2, 'T2'),
-            (3, 'T3'),
-        )
-        level = models.IntegerField(verbose_name='级别', choices=level_choices)
-        depart = models.ForeignKey(verbose_name='部门', to='Department')
+class UserInfo(RbacUserInfo):
+    phone = models.CharField(verbose_name='联系方式', max_length=32)
+    level_choices = (
+        (1, 'T1'),
+        (2, 'T2'),
+        (3, 'T3'),
+    )
+    level = models.IntegerField(verbose_name='级别', choices=level_choices)
+    depart = models.ForeignKey(verbose_name='部门', to='Department')
 ```
 ###4. 将业务系统中的用户表的路径写到配置文件。
 
@@ -136,52 +136,52 @@ url(r'^host/del/(?P<pk>\d+)/$', host.host_del, name='host_del'),
 ```
 ###10. 粒度到按钮级别的控制
 ```html
-        {% extends 'layout.html' %}
-        {% load rbac %}
-        {% block content %}
-            <div class="luffy-container">
-                <div class="btn-group" style="margin: 5px 0">
-                    {% if request|has_permission:'host_add' %}
-                        <a class="btn btn-default" href="{% memory_url request 'host_add' %}">
-                            <i class="fa fa-plus-square" aria-hidden="true"></i> 添加主机
-                        </a>
-                    {% endif %}
-                </div>
-                <table class="table table-bordered table-hover">
-                    <thead>
-                    <tr>
-                        <th>主机名</th>
-                        <th>IP</th>
-                        <th>部门</th>
-                        {% if request|has_permission:'host_edit' or request|has_permission:'host_del' %}
-                            <th>操作</th>
-                        {% endif %}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for row in host_queryset %}
-                        <tr>
-                            <td>{{ row.hostname }}</td>
-                            <td>{{ row.ip }}</td>
-                            <td>{{ row.depart.title }}</td>
-                            {% if request|has_permission:'host_edit' or request|has_permission:'host_del' %}
-                                <td>
-                                    {% if request|has_permission:'host_edit' %}
-                                        <a style="color: #333333;" href="{% memory_url request 'host_edit' pk=row.id %}">
-                                            <i class="fa fa-edit" aria-hidden="true"></i></a>
-                                    {% endif %}
-                                    {% if request|has_permission:'host_del' %}
-                                        <a style="color: #d9534f;" href="{% memory_url request 'host_del' pk=row.id %}"><i
-                                                class="fa fa-trash-o"></i></a>
-                                    {% endif %}
-                                </td>
+{% extends 'layout.html' %}
+{% load rbac %}
+{% block content %}
+    <div class="luffy-container">
+        <div class="btn-group" style="margin: 5px 0">
+            {% if request|has_permission:'host_add' %}
+                <a class="btn btn-default" href="{% memory_url request 'host_add' %}">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i> 添加主机
+                </a>
+            {% endif %}
+        </div>
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>主机名</th>
+                <th>IP</th>
+                <th>部门</th>
+                {% if request|has_permission:'host_edit' or request|has_permission:'host_del' %}
+                    <th>操作</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in host_queryset %}
+                <tr>
+                    <td>{{ row.hostname }}</td>
+                    <td>{{ row.ip }}</td>
+                    <td>{{ row.depart.title }}</td>
+                    {% if request|has_permission:'host_edit' or request|has_permission:'host_del' %}
+                        <td>
+                            {% if request|has_permission:'host_edit' %}
+                                <a style="color: #333333;" href="{% memory_url request 'host_edit' pk=row.id %}">
+                                    <i class="fa fa-edit" aria-hidden="true"></i></a>
                             {% endif %}
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endblock %}
+                            {% if request|has_permission:'host_del' %}
+                                <a style="color: #d9534f;" href="{% memory_url request 'host_del' pk=row.id %}"><i
+                                        class="fa fa-trash-o"></i></a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
 ```
 ##总结，目的是希望在任意系统中应用权限系统。
     - 用户登录 + 用户首页 + 用户注销 业务逻辑
